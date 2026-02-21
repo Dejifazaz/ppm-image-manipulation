@@ -77,9 +77,50 @@ void Image::setPixel(int x, int y, RGB colour)
     }
 }
 
+/*
+    Load a P6 ppm file. One byte per channel only.
+    Returns false if file missing, not P6, or invalid.
+*/
 bool Image::loadFromFile(const std::string& filename)
 {
-    return false;
+    std::ifstream file(filename.c_str(), std::ios::binary);
+    if(!file)
+    {
+        return false;
+    }
+
+    std::string magic;
+    file >> magic;
+    if(magic != "P6")
+    {
+        return false;
+    }
+
+    int w, h, maxval;
+    file >> w >> h >> maxval;
+    if(w <= 0 || h <= 0 || maxval <= 0 || maxval > 255)
+    {
+        return false;
+    }
+
+    file.get();
+    width = w;
+    height = h;
+    pixels.resize(width * height);
+
+    for(int i = 0; i < width * height; i++)
+    {
+        unsigned char r, g, b;
+        file.get((char&)r);
+        file.get((char&)g);
+        file.get((char&)b);
+        pixels[i].r = r;
+        pixels[i].g = g;
+        pixels[i].b = b;
+    }
+
+    file.close();
+    return true;
 }
 
 bool Image::saveToFile(const std::string& filename) const

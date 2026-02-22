@@ -123,9 +123,27 @@ bool Image::loadFromFile(const std::string& filename)
     return true;
 }
 
+/*
+    Save the image as a P6 ppm file.
+*/
 bool Image::saveToFile(const std::string& filename) const
 {
-    return false;
+    std::ofstream file(filename.c_str(), std::ios::binary);
+    if(!file)
+    {
+        return false;
+    }
+
+    file << "P6\n" << width << " " << height << "\n255\n";
+    for(int i = 0; i < width * height; i++)
+    {
+        file.put(pixels[i].r);
+        file.put(pixels[i].g);
+        file.put(pixels[i].b);
+    }
+
+    file.close();
+    return true;
 }
 
 void Image::filterRed() {}

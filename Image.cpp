@@ -149,9 +149,51 @@ bool Image::saveToFile(const std::string& filename) const
 void Image::filterRed() {}
 void Image::filterGreen() {}
 void Image::filterBlue() {}
-void Image::greyscale() {}
-void Image::flipHorizontal() {}
-void Image::flipVertical() {}
+/*
+    Convert image to greyscale using standard weights.
+*/
+void Image::greyscale()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        double grey = 0.299 * pixels[i].r + 0.587 * pixels[i].g + 0.114 * pixels[i].b;
+        if(grey > 255)
+            grey = 255;
+        unsigned char g = (unsigned char)grey;
+        pixels[i].r = g;
+        pixels[i].g = g;
+        pixels[i].b = g;
+    }
+}
+void Image::flipHorizontal()
+{
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width / 2; x++)
+        {
+            int left = y * width + x;
+            int right = y * width + (width - 1 - x);
+            RGB temp = pixels[left];
+            pixels[left] = pixels[right];
+            pixels[right] = temp;
+        }
+    }
+}
+
+void Image::flipVertical()
+{
+    for(int y = 0; y < height / 2; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            int top = y * width + x;
+            int bottom = (height - 1 - y) * width + x;
+            RGB temp = pixels[top];
+            pixels[top] = pixels[bottom];
+            pixels[bottom] = temp;
+        }
+    }
+}
 void Image::rotate90() {}
 void Image::gaussianBlur(int radius) {}
 void Image::crop(int x, int y, int cropWidth, int cropHeight) {}

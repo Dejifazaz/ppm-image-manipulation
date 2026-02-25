@@ -146,9 +146,32 @@ bool Image::saveToFile(const std::string& filename) const
     return true;
 }
 
-void Image::filterRed() {}
-void Image::filterGreen() {}
-void Image::filterBlue() {}
+void Image::filterRed()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        pixels[i].g = 0;
+        pixels[i].b = 0;
+    }
+}
+
+void Image::filterGreen()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        pixels[i].r = 0;
+        pixels[i].b = 0;
+    }
+}
+
+void Image::filterBlue()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        pixels[i].r = 0;
+        pixels[i].g = 0;
+    }
+}
 /*
     Convert image to greyscale using standard weights.
 */

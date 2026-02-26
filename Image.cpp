@@ -217,10 +217,43 @@ void Image::flipVertical()
         }
     }
 }
-void Image::rotate90() {}
+/*
+    Rotate image 90 degrees clockwise.
+*/
+void Image::rotate90()
+{
+    std::vector<RGB> rotated(width * height);
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            int newX = height - 1 - y;
+            int newY = x;
+            rotated[newY * height + newX] = getPixel(x, y);
+        }
+    }
+    int temp = width;
+    width = height;
+    height = temp;
+    pixels = rotated;
+}
 void Image::gaussianBlur(int radius) {}
 void Image::crop(int x, int y, int cropWidth, int cropHeight) {}
-void Image::mirrorImage() {}
+/*
+    Mirror: left half stays, right half is reflection of left.
+*/
+void Image::mirrorImage()
+{
+    int half = width / 2;
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = half; x < width; x++)
+        {
+            int srcX = width - 1 - x;
+            pixels[y * width + x] = getPixel(srcX, y);
+        }
+    }
+}
 void Image::to4Bit() {}
 void Image::invert() {}
 void Image::adjustBrightness(int delta) {}

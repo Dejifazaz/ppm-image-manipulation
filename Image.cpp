@@ -1,5 +1,6 @@
 #include "Image.h"
 #include <fstream>
+#include <cmath>
 
 Image::Image()
 {
@@ -237,8 +238,87 @@ void Image::rotate90()
     height = temp;
     pixels = rotated;
 }
-void Image::gaussianBlur(int radius) {}
-void Image::crop(int x, int y, int cropWidth, int cropHeight) {}
+/*
+    Gaussian blur. Radius 2 is a good default.
+*/
+void Image::gaussianBlur(int radius)
+{
+    if(radius <= 0)
+        return;
+
+    int size = 2 * radius + 1;
+    std::vector<double> kernel(size * size);
+    double sigma = radius / 2.0;
+    double sum = 0;
+
+    for(int dy = -radius; dy <= radius; dy++)
+    {
+        for(int dx = -radius; dx <= radius; dx++)
+        {
+            double v = exp(-(dx*dx + dy*dy) / (2 * sigma * sigma));
+            kernel[(dy + radius) * size + (dx + radius)] = v;
+            sum = sum + v;
+        }
+    }
+    for(int i = 0; i < size * size; i++)
+    {
+        kernel[i] = kernel[i] / sum;
+    }
+
+    std::vector<RGB> result(width * height);
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            double r = 0, g = 0, b = 0;
+            for(int dy = -radius; dy <= radius; dy++)
+            {
+                for(int dx = -radius; dx <= radius; dx++)
+                {
+                    RGB p = getPixel(x + dx, y + dy);
+                    double w = kernel[(dy + radius) * size + (dx + radius)];
+                    r = r + p.r * w;
+                    g = g + p.g * w;
+                    b = b + p.b * w;
+                }
+            }
+            if(r < 0) r = 0;
+            if(r > 255) r = 255;
+            if(g < 0) g = 0;
+            if(g > 255) g = 255;
+            if(b < 0) b = 0;
+            if(b > 255) b = 255;
+            result[y * width + x].r = (unsigned char)r;
+            result[y * width + x].g = (unsigned char)g;
+            result[y * width + x].b = (unsigned char)b;
+        }
+    }
+    pixels = result;
+}
+
+void Image::crop(int x, int y, int cropWidth, int cropHeight)
+{
+    if(x < 0) x = 0;
+    if(y < 0) y = 0;
+    if(x + cropWidth > width)
+        cropWidth = width - x;
+    if(y + cropHeight > height)
+        cropHeight = height - y;
+    if(cropWidth <= 0 || cropHeight <= 0)
+        return;
+
+    std::vector<RGB> cropped(cropWidth * cropHeight);
+    for(int cy = 0; cy < cropHeight; cy++)
+    {
+        for(int cx = 0; cx < cropWidth; cx++)
+        {
+            cropped[cy * cropWidth + cx] = getPixel(x + cx, y + cy);
+        }
+    }
+    width = cropWidth;
+    height = cropHeight;
+    pixels = cropped;
+}
 /*
     Mirror: left half stays, right half is reflection of left.
 */
@@ -254,7 +334,22 @@ void Image::mirrorImage()
         }
     }
 }
-void Image::to4Bit() {}
+/*
+    Reduce to 4-bit colour (16 levels per channel).
+*/
+void Image::to4Bit()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        int v;
+        v = (pixels[i].r >> 4) & 15;
+        pixels[i].r = (unsigned char)(v * 255 / 15);
+        v = (pixels[i].g >> 4) & 15;
+        pixels[i].g = (unsigned char)(v * 255 / 15);
+        v = (pixels[i].b >> 4) & 15;
+        pixels[i].b = (unsigned char)(v * 255 / 15);
+    }
+}
 void Image::invert() {}
 void Image::adjustBrightness(int delta) {}
 void Image::sepia() {}

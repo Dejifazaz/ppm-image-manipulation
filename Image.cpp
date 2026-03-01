@@ -350,7 +350,84 @@ void Image::to4Bit()
         pixels[i].b = (unsigned char)(v * 255 / 15);
     }
 }
-void Image::invert() {}
-void Image::adjustBrightness(int delta) {}
-void Image::sepia() {}
-void Image::sharpen() {}
+void Image::invert()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        pixels[i].r = 255 - pixels[i].r;
+        pixels[i].g = 255 - pixels[i].g;
+        pixels[i].b = 255 - pixels[i].b;
+    }
+}
+
+void Image::adjustBrightness(int delta)
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        int r = pixels[i].r + delta;
+        int g = pixels[i].g + delta;
+        int b = pixels[i].b + delta;
+        if(r < 0) r = 0;
+        if(r > 255) r = 255;
+        if(g < 0) g = 0;
+        if(g > 255) g = 255;
+        if(b < 0) b = 0;
+        if(b > 255) b = 255;
+        pixels[i].r = (unsigned char)r;
+        pixels[i].g = (unsigned char)g;
+        pixels[i].b = (unsigned char)b;
+    }
+}
+
+void Image::sepia()
+{
+    for(int i = 0; i < width * height; i++)
+    {
+        int r = (int)(0.393 * pixels[i].r + 0.769 * pixels[i].g + 0.189 * pixels[i].b);
+        int g = (int)(0.349 * pixels[i].r + 0.686 * pixels[i].g + 0.168 * pixels[i].b);
+        int b = (int)(0.272 * pixels[i].r + 0.534 * pixels[i].g + 0.131 * pixels[i].b);
+        if(r > 255) r = 255;
+        if(g > 255) g = 255;
+        if(b > 255) b = 255;
+        pixels[i].r = (unsigned char)r;
+        pixels[i].g = (unsigned char)g;
+        pixels[i].b = (unsigned char)b;
+    }
+}
+
+/*
+    Sharpen using a simple 3x3 kernel.
+*/
+void Image::sharpen()
+{
+    int kernel[9] = { 0, -1, 0, -1, 5, -1, 0, -1, 0 };
+    std::vector<RGB> result(width * height);
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            int r = 0, g = 0, b = 0;
+            for(int dy = -1; dy <= 1; dy++)
+            {
+                for(int dx = -1; dx <= 1; dx++)
+                {
+                    RGB p = getPixel(x + dx, y + dy);
+                    int k = kernel[(dy + 1) * 3 + (dx + 1)];
+                    r = r + p.r * k;
+                    g = g + p.g * k;
+                    b = b + p.b * k;
+                }
+            }
+            if(r < 0) r = 0;
+            if(r > 255) r = 255;
+            if(g < 0) g = 0;
+            if(g > 255) g = 255;
+            if(b < 0) b = 0;
+            if(b > 255) b = 255;
+            result[y * width + x].r = (unsigned char)r;
+            result[y * width + x].g = (unsigned char)g;
+            result[y * width + x].b = (unsigned char)b;
+        }
+    }
+    pixels = result;
+}

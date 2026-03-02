@@ -1,0 +1,7 @@
+*.o
+*.exe
+*.out
+*.app
+.DS_Store
+build/
+cmake-build-*/

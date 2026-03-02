@@ -1,0 +1,2 @@
+Replace this with your GitHub repository URL after you create the repo and push.
+Example: https://github.com/yourusername/ppm-image-manipulation

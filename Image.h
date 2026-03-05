@@ -1,12 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <string>
 #include <vector>
-
-/*
-    RGB pixel - one byte per colour (0 to 255).
-*/
 struct RGB
 {
     unsigned char r;
@@ -14,11 +9,6 @@ struct RGB
     unsigned char b;
 };
 
-/*
-    Image class for PPM (P6) images.
-    Pixels stored in order: top-left to bottom-right, row by row.
-    Index = (y * width) + x
-*/
 class Image
 {
 public:
@@ -47,15 +37,7 @@ public:
     void flipVertical();
 
     void rotate90();
-    void gaussianBlur(int radius);
-    void crop(int x, int y, int cropWidth, int cropHeight);
     void mirrorImage();
-    void to4Bit();
-
-    void invert();
-    void adjustBrightness(int delta);
-    void sepia();
-    void sharpen();
 
 private:
     int width;
